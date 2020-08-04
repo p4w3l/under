@@ -1,0 +1,33 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <camelContext id="Under-context" trace="true" xmlns="http://camel.apache.org/schema/spring">
+
+        <restConfiguration component="undertow" bindingMode="json"
+                           contextPath="/camel/rest" enableCORS="true" apiContextPath="api-docs"
+                           apiVendorExtension="true">
+            <dataFormatProperty key="prettyPrint" value="true"/>
+        </restConfiguration>
+
+        <rest path="/say">
+            <get uri="/{id}">
+                <description>Coś do powiedzenia</description>
+                <param name="id" type="path" description="Coś do powiedzenia" dataType="string"/>
+                <responseMessage code="200" message="Coś do powiedzenia"/>
+                <to uri="direct:testSay"/>
+            </get>
+        </rest>
+
+        <route>
+            <from uri="direct:testSay"/>
+            <setBody>
+                <groovy>return URLDecoder.decode(request.headers.get('id'));</groovy>
+            </setBody>
+        </route>
+
+    </camelContext>
+
+</beans>
